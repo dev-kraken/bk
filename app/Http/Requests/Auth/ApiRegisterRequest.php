@@ -27,6 +27,7 @@ class ApiRegisterRequest extends FormRequest
             'last_name' => 'required|string',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:3|max:8',
+            'provider' => 'required|string|min:2|max:10',
         ];
     }
 }

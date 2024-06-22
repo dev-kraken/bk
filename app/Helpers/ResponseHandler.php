@@ -6,21 +6,27 @@ use Illuminate\Http\JsonResponse;
 
 class ResponseHandler
 {
-    public static function success($data, $message = 'Operation successful', $code = 200): JsonResponse
+    public static function success($message = 'Request successfully completed', $data = null, $code = 200): JsonResponse
     {
-        return response()->json([
+        $response = [
             'status' => 'success',
             'message' => $message,
-            'data' => $data,
-        ], $code);
+        ];
+        if (!is_null($data)) {
+            $response['data'] = $data;
+        }
+        return response()->json($response, $code);
     }
 
     public static function error($message, $code = 400, $data = null): JsonResponse
     {
-        return response()->json([
+        $response = [
             'status' => 'error',
             'message' => $message,
-            'data' => $data,
-        ], $code);
+        ];
+        if (!is_null($data)) {
+            $response['data'] = $data;
+        }
+        return response()->json($response, $code);
     }
 }

@@ -19,10 +19,7 @@ class AuthController extends Controller
     public function register(ApiRegisterRequest $request): JsonResponse
     {
         AuthServiceFacade::register($request->validated());
-        return response()->json([
-            'message' => 'User created successfully',
-            'status' => true
-        ], 201);
+        return ResponseHandler::success('User created successfully');
     }
 
     /**
@@ -50,7 +47,7 @@ class AuthController extends Controller
         $user['refresh_token'] = $user->createToken('refresh-token', [TokenAbility::REFRESH_TOKEN->value],
             $refreshTokenExpiration)->plainTextToken;
 
-        return ResponseHandler::success($user, 'User logged in successfully');
+        return ResponseHandler::success(message: 'User logged in successfully', data: $user);
     }
 
     public function refreshToken(Request $request): JsonResponse
@@ -64,9 +61,10 @@ class AuthController extends Controller
             [TokenAbility::ACCESS_TOKEN->value], $accessTokenExpiration)->plainTextToken;
 
         return ResponseHandler::success([
+            'Access token refreshed successfully',
             'access_token' => $accessToken,
             'access_token_expiration' => $accessTokenExpiration,
-        ], 'Access token refreshed successfully');
+        ]);
     }
 
     public function logOut(Request $request): JsonResponse
@@ -76,7 +74,7 @@ class AuthController extends Controller
         if (!$user) {
             return ResponseHandler::error('Unable to logout due to some issue.', 401);
         }
-        $user->currentAccessToken()->delete();
+        $user->tokens()->delete();
         return ResponseHandler::success('Logged out successfully');
     }
 

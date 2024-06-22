@@ -14,9 +14,11 @@ return new class extends Migration {
             $table->id();
             $table->string('first_name');
             $table->string('last_name')->nullable();
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable(); // Allow email to be nullable for OAuth users
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable(); // Allow password to be nullable for OAuth users
+            $table->string('provider')->nullable(); // 'google', 'facebook', or 'email'
+            $table->string('provider_id')->nullable(); // ID from the provider
             $table->rememberToken();
             $table->timestamps();
         });
@@ -47,3 +49,4 @@ return new class extends Migration {
         Schema::dropIfExists('sessions');
     }
 };
+
