@@ -4,6 +4,7 @@ use App\Helpers\ResponseHandler;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Laravel\Sanctum\Exceptions\MissingAbilityException;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -32,16 +33,23 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (Throwable $e, $request) {
+            // Handle Sanctum-specific exceptions
+            if ($e instanceof MissingAbilityException) {
+                return ResponseHandler::error('Token does not have the necessary abilities to access this resource.',
+                    403);
+            }
+
+            if ($e instanceof AuthenticationException) {
+                return ResponseHandler::error('Unauthenticated', 401);
+            }
+
+            // Handle other specific exceptions
             if ($e instanceof AccessDeniedHttpException) {
                 return ResponseHandler::error('You do not have the necessary abilities to access this resource.', 403);
             }
 
             if ($e instanceof ValidationException) {
                 return ResponseHandler::error('Validation Error', 422, $e->errors());
-            }
-
-            if ($e instanceof AuthenticationException) {
-                return ResponseHandler::error('Unauthenticated', 401);
             }
 
             if ($e instanceof AuthorizationException) {
